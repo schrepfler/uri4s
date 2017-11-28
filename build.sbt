@@ -9,6 +9,7 @@ lazy val `scala-uri` =
     .settings(settings)
     .settings(
       libraryDependencies ++= Seq(
+        library.fastParse,
         library.scalaCheck % Test,
         library.scalaTest  % Test
       )
@@ -23,7 +24,9 @@ lazy val library =
     object Version {
       val scalaCheck = "1.13.5"
       val scalaTest  = "3.0.4"
+      val fastParse  = "1.0.0"
     }
+    val fastParse  = "com.lihaoyi" %% "fastparse" % Version.fastParse
     val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
     val scalaTest  = "org.scalatest"  %% "scalatest"  % Version.scalaTest
   }
@@ -40,7 +43,7 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     // scalaVersion from .travis.yml via sbt-travisci
-    // scalaVersion := "2.12.4",
+    scalaVersion := "2.12.4",
     organization := "Sigmalab",
     organizationName := "Srdan Srepfler",
     startYear := Some(2017),

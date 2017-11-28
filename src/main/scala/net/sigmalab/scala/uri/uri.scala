@@ -1,5 +1,4 @@
-
-package sigmalab.scala
+package net.sigmalab.scala.uri
 
 package object uri {
 
