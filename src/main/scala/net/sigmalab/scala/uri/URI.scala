@@ -46,15 +46,15 @@ object URI {
 
   val path = P(CharsWhile(_ != '?')).!.log()
 
-  val query = P(CharsWhile(_ != End)).!.log()
+  val query = P(AnyChar.rep ~ End).!.log()
 
-  val fragment = P(CharsWhile(_ != End)).!.log()
+  val fragment = P(AnyChar.rep ~ End).!.log()
 
   val hierpart = P(":" ~ authority ~ path ~ query ~ fragment).log()
 
   val uri = P(scheme ~ hierpart).log()
 
-  val pass = ???
+  val pass = Password("password")
 
   val authUserInfo = UserInfo("srdan", Some(pass))
 
