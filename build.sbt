@@ -10,6 +10,7 @@ lazy val `scala-uri` =
     .settings(
       libraryDependencies ++= Seq(
         library.fastParse,
+        library.pprint,
         library.scalaCheck % Test,
         library.scalaTest  % Test
       )
@@ -22,11 +23,13 @@ lazy val `scala-uri` =
 lazy val library =
   new {
     object Version {
-      val scalaCheck = "1.13.5"
-      val scalaTest  = "3.0.4"
+      val scalaCheck = "1.14.0"
+      val scalaTest  = "3.0.5"
       val fastParse  = "1.0.0"
+      val pprint     = "0.5.3"
     }
     val fastParse  = "com.lihaoyi" %% "fastparse" % Version.fastParse
+    val pprint     = "com.lihaoyi" %% "pprint" % Version.pprint
     val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
     val scalaTest  = "org.scalatest"  %% "scalatest"  % Version.scalaTest
   }
@@ -43,7 +46,7 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     // scalaVersion from .travis.yml via sbt-travisci
-    scalaVersion := "2.12.4",
+    scalaVersion := "2.12.6",
     organization := "Sigmalab",
     organizationName := "Srdan Srepfler",
     startYear := Some(2017),
@@ -68,5 +71,5 @@ lazy val scalafmtSettings =
   Seq(
     scalafmtOnCompile := true,
     scalafmtOnCompile.in(Sbt) := false,
-    scalafmtVersion := "1.3.0"
+    scalafmtVersion := "1.5.1"
   )

@@ -16,28 +16,31 @@
 
 package net.sigmalab.scala.uri
 
+import fastparse.all._
 import org.scalatest.{ Matchers, WordSpec }
 
-class URISpec extends WordSpec with Matchers {
+class ParsersSpec extends WordSpec with Matchers {
 
-  "apply" should {
-    "handle simple URL" in {
-      val strUri: String = "http://www.example.com"
+  "scheme parser" should {
 
-      val uri = URI(strUri)
+    val scheme: Parser[String] = P(CharsWhile(_ != "://").!)
 
+    "handle simple scheme" in {
+
+      val schemeValue: String = "http://aaaaa"
+
+      val parseResult = scheme.parse(schemeValue)
+
+      System.err.println(parseResult)
+      System.err.println(parseResult.get)
       // val uri = URI("https://auser:apass@github.com/schrepfler/scala-uri?queryKey=queryValue")
 
-//    val password = Password("password")
-//
-//    val authUserInfo = UserInfo("srdan", Some(password))
-//
-//    val authority = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
-      println("------")
-      println(uri)
-      // println(uri)
-
-//    val uri = URI(Some("http://"), Some(authority), "pages/1", "hideComments=true", None)
+      //    val password = Password("password")
+      //
+      //    val authUserInfo = UserInfo("srdan", Some(password))
+      //
+      //    val authority = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
+      //    val uri = URI(Some("http://"), Some(authority), "pages/1", "hideComments=true", None)
 
     }
 

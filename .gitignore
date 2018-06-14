@@ -35,3 +35,4 @@ snapshots
 *.log
 /bin/
 scala-uri.iml
+.vscode/
