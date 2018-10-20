@@ -22,7 +22,7 @@ class URISpec extends WordSpec with Matchers {
 
   "apply" should {
     "handle simple URL" in {
-      val strUri: String = "http://www.example.com"
+      def strUri: String = "http://www.example.com"
 
       val uri = URI(strUri)
 

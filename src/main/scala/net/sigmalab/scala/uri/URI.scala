@@ -18,7 +18,7 @@ package net.sigmalab.scala.uri
 
 object URI {
 
-  import fastparse.all._
+  import fastparse._
   import pprint._
 
   def mkScheme(scheme: String)       = ???
@@ -30,35 +30,35 @@ object URI {
   def mkQueryValue                   = ???
   def mkFragment                     = ???
 
-  val scheme: Parser[String] = P(CharsWhile(_ != ':')).!.log()
+  def scheme[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  val username = P(CharsWhile(_ != ':')).!.log()
+  def username[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  val password = P(CharsWhile(_ != ':')).!.log()
+  def password[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  val userinfo = P(username ~ password ~ "@").!.log()
+  def userinfo[_: P]: P[String] = P(username ~ password ~ "@").!.log()
 
-  val host = P(CharsWhile(_ != ':')).!.log()
+  def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  val port = P(CharsWhile(_ != ':')).!.log()
+  def port[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  val authority = P("//" ~ userinfo ~ host ~ port).log()
+  def authority[_: P]: P[String] = P("//" ~ userinfo ~ host ~ port).log()
 
-  val path = P(CharsWhile(_ != '?')).!.log()
+  def path[_: P]: P[String] = P(CharsWhile(_ != '?')).!.log
 
-  val query = P(AnyChar.rep ~ End).!.log()
+  def query[_: P]: P[String] = P(AnyChar.rep ~ End).!.log()
 
-  val fragment = P(AnyChar.rep ~ End).!.log()
+  def fragment[_: P]: P[String] = P(AnyChar.rep ~ End).!.log()
 
-  val hierpart = P(":" ~ authority ~ path ~ query ~ fragment).log()
+  def hierpart[_: P]: P[String] = P(":" ~ authority ~ path ~ query ~ fragment).log()
 
-  val uri = P(scheme ~ hierpart).log()
+  def uri[_: P]: P[String] = P(scheme ~ hierpart).log()
 
-  val pass = Password("password")
+  def pass[_: P]: P[String] = Password("password")
 
-  val authUserInfo = UserInfo("srdan", Some(pass))
+  def authUserInfo[_: P]: P[String] = UserInfo("srdan", Some(pass))
 
-  val auth = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
+  def auth[_: P]: P[String] = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
 
   def apply(value: String): URI = {
     println(s"Parsing: $value")

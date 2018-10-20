@@ -16,14 +16,14 @@
 
 package net.sigmalab.scala.uri
 
-import fastparse.all._
+import fastparse._
 import org.scalatest.{ Matchers, WordSpec }
 
 class ParsersSpec extends WordSpec with Matchers {
 
   "scheme parser" should {
 
-    val scheme: Parser[String] = P(CharsWhile(_ != "://").!)
+    def scheme[_: P]: P[String] = P(CharsWhile(_ != "://").!)
 
     "handle simple scheme" in {
 
