@@ -18,15 +18,7 @@ package net.sigmalab.scala.uri
 import fastparse.parse
 import net.sigmalab.scala.uri.URI.emptyURI
 
-
-/**
-  * Uniform resource identifier (URI) reference.
-  */
-case class URI(uriScheme: Option[String],
-               uriAuthority: Option[Authority],
-               uriPath: String,
-               uriQuery: String,
-               uriFragment: Option[String])
+import scala.util.Failure
 
 object URI {
 
@@ -46,9 +38,9 @@ object URI {
 
   def username[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  def password[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
+  def password[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
 
-  def userinfo[_: P]: P[String] = P(username ~ password ~ "@").!.log
+  def userinfo[_: P]: P[String] = P(username ~ password).!.log
 
   def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
@@ -92,11 +84,17 @@ object URI {
 
   val emptyURI = URI(None, None, "", "", None)
 
-  def apply(value: String) = {
-    println(s"Parsing: $value")
-    val result = parse(value, URI.uri(_))
-    println(result)
-    new URI(None, None, "", "", None)
+  def apply(input: String): Either[Error, URI] = {
+    println(s"Parsing: $input")
+    val result = parse(input, URI.uri(_))
+//    println(result)
+    result.fold(
+      (_, _, _) => Left(new Error(s"Cannot parse $input as an URI")),
+      (v, _) => {
+        println(s"Parsed: $v")
+        Right(new URI(v._1, None, "", "", None))
+      }
+    )
   }
 }
 
@@ -134,6 +132,14 @@ object URI {
 //    emptyURI
 //  }
 
+/**
+  * Uniform resource identifier (URI) reference.
+  */
+case class URI(uriScheme: Option[String],
+               uriAuthority: Option[Authority],
+               uriPath: String,
+               uriQuery: String,
+               uriFragment: Option[String])
 
 case class Authority(authUserInfo: Option[UserInfo], authHost: String, authPort: Option[String])
 
