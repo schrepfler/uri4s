@@ -37,3 +37,6 @@ snapshots
 scala-uri.iml
 .vscode/
 .AppleDouble/
+.attach_pid*
+.bloop/
+.metals/
