@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Srdan Srepfler
+ * Copyright 2018 Srdan Srepfler
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,22 @@
  */
 
 package net.sigmalab.scala.uri
+import fastparse.parse
+import net.sigmalab.scala.uri.URI.emptyURI
+
+
+/**
+  * Uniform resource identifier (URI) reference.
+  */
+case class URI(uriScheme: Option[String],
+               uriAuthority: Option[Authority],
+               uriPath: String,
+               uriQuery: String,
+               uriFragment: Option[String])
 
 object URI {
 
-  import fastparse._
+  import fastparse._, NoWhitespace._
   import pprint._
 
   def mkScheme(scheme: String)       = ???
@@ -30,71 +42,98 @@ object URI {
   def mkQueryValue                   = ???
   def mkFragment                     = ???
 
-  def scheme[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
+  def scheme[_: P]: P[Option[String]] = P(CharsWhile(_ != ':').!).?.log
 
   def username[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
   def password[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  def userinfo[_: P]: P[String] = P(username ~ password ~ "@").!.log()
+  def userinfo[_: P]: P[String] = P(username ~ password ~ "@").!.log
 
   def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  def port[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
+  def port[_: P]: P[String] = P(":" ~ CharsWhile(_ != '/')).!.log
 
-  def authority[_: P]: P[String] = P("//" ~ userinfo ~ host ~ port).log()
+  def authority[_: P]: P[Option[(String, String, String)]] = P(userinfo ~ host ~ port).?.log
 
-  def path[_: P]: P[String] = P(CharsWhile(_ != '?')).!.log
+  //      *( "/" segment )
+  def `path-abempty`[_: P] = P("")
 
-  def query[_: P]: P[String] = P(AnyChar.rep ~ End).!.log()
+  //      "/" [ segment-nz *( "/" segment ) ]
+  def `path-absolute`[_: P] = P("")
 
-  def fragment[_: P]: P[String] = P(AnyChar.rep ~ End).!.log()
+  //      segment-nz-nc *( "/" segment )
+  def `path-noscheme`[_: P] = P("")
 
-  def hierpart[_: P]: P[String] = P(":" ~ authority ~ path ~ query ~ fragment).log()
+  //      segment-nz *( "/" segment )
+  def `path-rootless`[_: P] = P("")
 
-  def uri[_: P]: P[String] = P(scheme ~ hierpart).log()
+  //      0<pchar>
+  def `path-empty`[_: P] = P("")
 
-  def pass[_: P]: P[String] = Password("password")
+//  def path[_: P]: P[String] = P(CharsWhile(_ != '?')).!.log
+  def path[_: P]: P[String] = P(`path-abempty` | `path-absolute` | `path-noscheme` | `path-rootless` | `path-empty`).!.log
 
-  def authUserInfo[_: P]: P[String] = UserInfo("srdan", Some(pass))
+  def query[_: P]: P[Option[String]] = P("?" ~ AnyChar.rep.! ~ End).?.log
 
-  def auth[_: P]: P[String] = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
+  def fragment[_: P]: P[String] = P(AnyChar.rep ~ End).!.log
 
-  def apply(value: String): URI = {
+  def `hier-part`[_: P]: P[(Option[(String, String, String)], String, Option[String], String)] = P(authority ~ path ~ query ~ fragment).log
+
+  def uri[_: P]: P[
+    (Option[String],
+     (Option[(String, String, String)], String, Option[String], String),
+     Option[String])
+  ] = P(scheme ~ ":" ~ `hier-part` ~ query).log
+
+  def pass[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
+
+  def authUserInfo[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
+
+  val emptyURI = URI(None, None, "", "", None)
+
+  def apply(value: String) = {
     println(s"Parsing: $value")
-
-    val parsed = uri.parse(value)
-
-    pprintln(s"scheme: $scheme")
-    pprintln(s"username: $username")
-    pprintln(s"password: $password")
-    pprintln(s"userinfo: $userinfo")
-    pprintln(s"host: $host")
-    pprintln(s"port: $port")
-    pprintln(s"authority: $authority")
-    pprintln(s"path: $path")
-    pprintln(s"query: $query")
-    pprintln(s"fragment: $fragment")
-    pprintln(s"hierpart: $hierpart")
-    pprintln(s"uri: $uri")
-    pprintln(s"pass: $pass")
-    pprintln(s"authUserInfo: $authUserInfo")
-    pprintln(s"auth: $auth")
-
-    pprintln(parsed)
-
-    URI(Some("http://"), Some(auth), "pages/1", "hideComments=true", None)
+    val result = parse(value, URI.uri(_))
+    println(result)
+    new URI(None, None, "", "", None)
   }
 }
 
-/**
-  * Uniform resource identifier (URI) reference.
-  */
-case class URI(uriScheme: Option[String],
-               uriAuthority: Option[Authority],
-               uriPath: String,
-               uriQuery: String,
-               uriFragment: Option[String])
+
+//  def this(value: String): URI = {
+//    println(s"Parsing: $value")
+//
+//    val result = parse(value, URI.uri(_))
+//    //    val parsed = uri.parse(value)
+//
+//    println(result)
+//    //    pprintln(s"scheme: $scheme")
+//    //    pprintln(s"username: $username")
+//    //    pprintln(s"password: $password")
+//    //    pprintln(s"userinfo: $userinfo")
+//    //    pprintln(s"host: $host")
+//    //    pprintln(s"port: $port")
+//    //    pprintln(s"authority: $authority")
+//    //    pprintln(s"path: $path")
+//    //    pprintln(s"query: $query")
+//    //    pprintln(s"fragment: $fragment")
+//    //    pprintln(s"hierpart: $`hier-part`")
+//    //    pprintln(s"uri: $uri")
+//    //    pprintln(s"pass: $pass")
+//    //    pprintln(s"authUserInfo: $authUserInfo")
+//    //    pprintln(s"auth: $auth")
+//
+//    //    pprintln(parsed)
+////    result.fold[URI](
+////      (_, _, _) => emptyURI,
+////      (one, two) => {
+////        URI(one._1, None, "path", one._2._3.get, None)
+////      }
+////    )
+//    emptyURI
+//  }
+
 
 case class Authority(authUserInfo: Option[UserInfo], authHost: String, authPort: Option[String])
 

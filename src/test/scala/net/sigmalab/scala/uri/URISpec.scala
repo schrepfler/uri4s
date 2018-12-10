@@ -17,16 +17,17 @@
 package net.sigmalab.scala.uri
 
 import org.scalatest.{ Matchers, WordSpec }
+import net.sigmalab.scala.uri._
 
 class URISpec extends WordSpec with Matchers {
 
   "apply" should {
     "handle simple URL" in {
-      def strUri: String = "http://www.example.com"
+//      def strUri: String = "http://www.example.com"
 
-      val uri = URI(strUri)
+//      val uri = URI(strUri)
 
-      // val uri = URI("https://auser:apass@github.com/schrepfler/scala-uri?queryKey=queryValue")
+      val uri = URI("https://auser:apass@github.com/schrepfler/scala-uri?queryKey=queryValue")
 
 //    val password = Password("password")
 //

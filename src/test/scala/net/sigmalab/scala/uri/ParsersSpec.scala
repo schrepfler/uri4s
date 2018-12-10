@@ -18,6 +18,7 @@ package net.sigmalab.scala.uri
 
 import fastparse._
 import org.scalatest.{ Matchers, WordSpec }
+import net.sigmalab.scala.uri._
 
 class ParsersSpec extends WordSpec with Matchers {
 
@@ -27,12 +28,12 @@ class ParsersSpec extends WordSpec with Matchers {
 
     "handle simple scheme" in {
 
-      val schemeValue: String = "http://aaaaa"
+      val schemeValue: String = "http://srdan:srepfler@aaaaa:8080?queryKey=queryValue"
 
-      val parseResult = scheme.parse(schemeValue)
-
-      System.err.println(parseResult)
-      System.err.println(parseResult.get)
+//      val parseResult = scheme.parse(schemeValue)
+//
+//      System.err.println(parseResult)
+//      System.err.println(parseResult.get)
       // val uri = URI("https://auser:apass@github.com/schrepfler/scala-uri?queryKey=queryValue")
 
       //    val password = Password("password")
