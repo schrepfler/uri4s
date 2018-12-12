@@ -18,12 +18,9 @@ package net.sigmalab.scala.uri
 import fastparse.parse
 import net.sigmalab.scala.uri.URI.emptyURI
 
-import scala.util.Failure
-
 object URI {
 
   import fastparse._, NoWhitespace._
-  import pprint._
 
   def mkScheme(scheme: String)       = ???
   def mkUsername                     = ???
@@ -44,43 +41,58 @@ object URI {
 
   def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
-  def port[_: P]: P[String] = P(":" ~ CharsWhile(_ != '/')).!.log
+  def port[_: P]: P[String] = P(CharsWhile(_ != '/')).!.log
 
-  def authority[_: P]: P[Option[(String, String, String)]] = P(userinfo ~ host ~ port).?.log
+  def authority[_: P]: P[Option[(Option[String], String, Option[String])]] = P((userinfo.? ~ "@") ~ host ~ (":" ~ port).?).?.log
+
+  def ALPHA[_: P] = P(CharIn("a-zA-Z").rep).log
+
+  def DIGIT[_: P] = P(CharIn("0-9").rep).log
+
+  def unreserved[_: P] = P(ALPHA | DIGIT | "-" | "." | "_" | "~").log
+
+  def reserved[_: P] = P(`gen-delims` | `sub-delims`).log
+
+  def `gen-delims`[_: P] = P(":" | "/" | "?" | "#" | "[" | "]" | "@").log
+
+  def `sub-delims`[_: P] = P("!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "=").log
 
   //      *( "/" segment )
-  def `path-abempty`[_: P] = P("")
+  def `path-abempty`[_: P] = P("/" ~ CharIn("a-zA-Z").rep.?).rep.log
 
   //      "/" [ segment-nz *( "/" segment ) ]
-  def `path-absolute`[_: P] = P("")
+  def `path-absolute`[_: P] = P("/" ~ (CharIn("a-zA-Z").rep(1).? ~ ("/" ~ CharIn("a-zA-Z")).rep)).log
 
   //      segment-nz-nc *( "/" segment )
-  def `path-noscheme`[_: P] = P("")
+  def `path-noscheme`[_: P] = P("").log
 
   //      segment-nz *( "/" segment )
-  def `path-rootless`[_: P] = P("")
+  def `path-rootless`[_: P] = P("").log
 
   //      0<pchar>
-  def `path-empty`[_: P] = P("")
+  def `path-empty`[_: P] = P("").log
 
 //  def path[_: P]: P[String] = P(CharsWhile(_ != '?')).!.log
-  def path[_: P]: P[String] = P(`path-abempty` | `path-absolute` | `path-noscheme` | `path-rootless` | `path-empty`).!.log
+  def path[_: P]: P[String] =
+    P(`path-abempty` | `path-absolute` | `path-noscheme` | `path-rootless` | `path-empty`).!.log
 
-  def query[_: P]: P[Option[String]] = P("?" ~ AnyChar.rep.! ~ End).?.log
+  def query[_: P]: P[String] = P(AnyChar.rep.!).!.log
 
-  def fragment[_: P]: P[String] = P(AnyChar.rep ~ End).!.log
+  def fragment[_: P]: P[String] = P(AnyChar.rep).!.log
 
-  def `hier-part`[_: P]: P[(Option[(String, String, String)], String, Option[String], String)] = P(authority ~ path ~ query ~ fragment).log
+  def `hier-part`[_: P]: P[Any] = P(("//" ~ authority ~ `path-abempty`) | `path-absolute` | `path-rootless` | `path-empty`).log
 
-  def uri[_: P]: P[
-    (Option[String],
-     (Option[(String, String, String)], String, Option[String], String),
-     Option[String])
-  ] = P(scheme ~ ":" ~ `hier-part` ~ query).log
+  def uri[_: P]: P[(Option[String], Any, Option[String], Option[String])] = P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).? ~ ("#" ~ fragment).?).log
 
   def pass[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
   def authUserInfo[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
+
+  def `relative-part`[_: P]: P[Any] = P(("//" ~ authority ~ `path-abempty`) | `path-absolute` | `path-rootless` | `path-empty`).log
+
+  def `relative-ref`[_: P] = P(`relative-part` ~ query.?)
+
+  def `absolute-URI`[_: P]: P[(Option[String], Any, Option[String])] = P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).?).log
 
   val emptyURI = URI(None, None, "", "", None)
 
@@ -97,7 +109,6 @@ object URI {
     )
   }
 }
-
 
 //  def this(value: String): URI = {
 //    println(s"Parsing: $value")

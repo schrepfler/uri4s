@@ -10,7 +10,6 @@ lazy val `scala-uri` =
     .settings(
       libraryDependencies ++= Seq(
         library.fastParse,
-        library.pprint,
         library.scalaCheck % Test,
         library.scalaTest  % Test
       )
@@ -26,10 +25,8 @@ lazy val library =
       val scalaCheck = "1.14.0"
       val scalaTest  = "3.0.5"
       val fastParse  = "2.0.5"
-      val pprint     = "0.5.3"
     }
     val fastParse  = "com.lihaoyi" %% "fastparse" % Version.fastParse
-    val pprint     = "com.lihaoyi" %% "pprint" % Version.pprint
     val scalaCheck = "org.scalacheck" %% "scalacheck" % Version.scalaCheck
     val scalaTest  = "org.scalatest"  %% "scalatest"  % Version.scalaTest
   }

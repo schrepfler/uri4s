@@ -27,7 +27,7 @@ class URISpec extends WordSpec with Matchers {
 
 //      val uri = URI(strUri)
 
-      val uri = URI("https://auser:apass@github.com/schrepfler/scala-uri?queryKey=queryValue")
+      val uri = URI("https://auser:apass@github.com:80/schrepfler/scala-uri?queryKey=queryValue#id")
 
 //    val password = Password("password")
 //
