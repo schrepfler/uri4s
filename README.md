@@ -1,6 +1,6 @@
 # scala-uri #
 
-Welcome to scala-uri!
+Welcome to uri4s! This library aims to implement an rfc3986 compliant parser with a similar approach to moder-uri and scala-uri.
 
 ## Contribution policy ##
 
@@ -10,6 +10,12 @@ the work to the project under the project's open source license. Whether or not 
 explicitly, by submitting any copyrighted material via pull request, email, or other means you
 agree to license the material under the project's open source license and warrant that you have the
 legal authority to do so.
+
+## Reference materials
+
+- https://tools.ietf.org/rfc/rfc3986.txt
+- https://github.com/mrkkrp/modern-uri
+- https://github.com/lemonlabsuk/scala-uri
 
 ## License ##
 
