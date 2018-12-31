@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.sigmalab.scala.uri
+package net.sigmalab.uri4s
 
 import org.scalatest.{Matchers, WordSpec}
 

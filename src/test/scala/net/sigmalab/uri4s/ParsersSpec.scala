@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package net.sigmalab.scala.uri
+package net.sigmalab.uri4s
 
 import fastparse._
 import org.scalatest.{ Matchers, WordSpec }
-import net.sigmalab.scala.uri._
 
 class ParsersSpec extends WordSpec with Matchers {
 

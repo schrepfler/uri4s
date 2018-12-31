@@ -2,7 +2,7 @@
 // Projects
 // *****************************************************************************
 
-lazy val `scala-uri` =
+lazy val `uri4s` =
   project
     .in(file("."))
     .enablePlugins(AutomateHeaderPlugin, GitVersioning)

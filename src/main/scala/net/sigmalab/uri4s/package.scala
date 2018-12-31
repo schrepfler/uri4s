@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package net.sigmalab.scala.uri
+package net.sigmalab
 
-package object uri {
+package object uri4s {
 
   type Traversable[+A] = scala.collection.immutable.Traversable[A]
   type Iterable[+A]    = scala.collection.immutable.Iterable[A]
