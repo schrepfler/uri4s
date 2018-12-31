@@ -49,7 +49,7 @@ object URI {
       "v" ~ HEXDIG ~ "." ~ (unreserved | `sub-delims` | ":")
     ).!.log
 
-  def HEXDIG[_: P] = P(CharIn("0-9a-fA-F"))
+  def HEXDIG[_: P]: P[String] = P(CharIn("0-9a-fA-F")).!
 
   def `dec-octet`[_: P]: P[String] =
     P(
@@ -72,49 +72,67 @@ object URI {
   def authority[_: P]: P[Option[(Option[(String, String)], String, Option[String])]] =
     P((userinfo ~ "@").? ~ host ~ (":" ~ port).?).?.log
 
-  def ALPHA[_: P] = P(CharIn("a-zA-Z")).log
+  def ALPHA[_: P]: P[String] = P(CharIn("a-zA-Z")).!.log
 
-  def DIGIT[_: P] = P(CharIn("0-9")).log
+  def DIGIT[_: P]: P[String] = P(CharIn("0-9")).!.log
 
-  def ONE_TO_NINE[_: P] = P(CharIn("1-9")).log
+  def ONE_TO_NINE[_: P]: P[String] = P(CharIn("1-9")).!.log
 
-  def ZERO_TO_FOUR[_: P] = P(CharIn("0-4")).log
+  def ZERO_TO_FOUR[_: P]: P[String] = P(CharIn("0-4")).!.log
 
-  def ZERO_TO_FIVE[_: P] = P(CharIn("0-5")).log
+  def ZERO_TO_FIVE[_: P]: P[String] = P(CharIn("0-5")).!.log
 
-  def unreserved[_: P] = P(ALPHA | DIGIT | "-" | "." | "_" | "~").log
+  def unreserved[_: P]: P[String] = P(ALPHA | DIGIT | "-" | "." | "_" | "~").!.log
 
-  def reserved[_: P] = P(`gen-delims` | `sub-delims`).log
+  def reserved[_: P]: P[String] = P(`gen-delims` | `sub-delims`).!.log
 
-  def `gen-delims`[_: P] = P(":" | "/" | "?" | "#" | "[" | "]" | "@").log
+  def `gen-delims`[_: P]: P[String] = P(":" | "/" | "?" | "#" | "[" | "]" | "@").!.log
 
-  def `sub-delims`[_: P] = P("!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "=").log
+  def `sub-delims`[_: P]: P[String] =
+    P("!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "=").!.log
 
-  def `pct-encoded`[_: P] = P("%" ~ HEXDIG ~ HEXDIG)
+  def `pct-encoded`[_: P]: P[String] = P("%" ~ HEXDIG ~ HEXDIG).!.log
 
   //      *( "/" segment )
-  def `path-abempty`[_: P] = P("/" ~ CharIn("a-zA-Z")).rep.?.log
+  def `path-abempty`[_: P]: P[String] = P("/" ~ segment).rep.!.log
+
+  def segment[_: P]: P[String] = P(pchar).rep.!.log
+
+  def pchar[_: P]: P[String] =
+    P(
+      unreserved |
+      `pct-encoded` |
+      `sub-delims` |
+      ":" |
+      "@"
+    ).!.log
 
   //      "/" [ segment-nz *( "/" segment ) ]
-  def `path-absolute`[_: P] =
-    P("/" ~ (CharIn("a-zA-Z").rep(1).? ~ ("/" ~ CharIn("a-zA-Z")).rep)).log
+  def `path-absolute`[_: P]: P[String] =
+    P("/" ~ (CharIn("a-zA-Z").rep(1).? ~ ("/" ~ CharIn("a-zA-Z")).rep)).!.log
 
   //      segment-nz-nc *( "/" segment )
-  def `path-noscheme`[_: P] = P("").log
+  def `path-noscheme`[_: P]: P[String] = P("").!.log
 
   //      segment-nz *( "/" segment )
-  def `path-rootless`[_: P] = P("").log
+  def `path-rootless`[_: P]: P[String] = P("").!.log
 
   //      0<pchar>
-  def `path-empty`[_: P] = P("").log
+  def `path-empty`[_: P]: P[String] = P("").!.log
 
 //  def path[_: P]: P[String] = P(CharsWhile(_ != '?')).!.log
   def path[_: P]: P[String] =
     P(`path-abempty` | `path-absolute` | `path-noscheme` | `path-rootless` | `path-empty`).!.log
 
-  def query[_: P]: P[String] = P(AnyChar.rep.!).!.log
+  def query[_: P]: P[String] =
+    P(
+      pchar | "/" | "?"
+    ).rep.!.log
 
-  def fragment[_: P]: P[String] = P(AnyChar.rep).!.log
+  def fragment[_: P]: P[String] =
+    P(
+      pchar | "/" | "?"
+    ).rep.!.log
 
   def `hier-part`[_: P]: P[Any] =
     P(
@@ -132,10 +150,13 @@ object URI {
   def authUserInfo[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
 
   def `relative-part`[_: P]
-    : P[Either[Option[(Option[(String, String)], String, Option[String])], String]] =
+    : P[Either[(Option[(Option[(String, String)], String, Option[String])], String), String]] =
     P(("//" ~ authority ~ `path-abempty`).map(Left.apply) | path.map(Right.apply))
 
-  def `relative-ref`[_: P] = P(`relative-part` ~ query.?)
+  def `relative-ref`[_: P]: P[
+    (Either[(Option[(Option[(String, String)], String, Option[String])], String), String],
+     Option[String])
+  ] = P(`relative-part` ~ query.?)
 
   def `absolute-URI`[_: P]: P[(String, Any, Option[String])] =
     P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).?).log
@@ -145,7 +166,7 @@ object URI {
   def apply(input: String): Either[Error, URI] = {
     println(s"Parsing: $input")
     val result = parse(input, URI(_))
-//    println(result)
+
     result.fold(
       (_, _, _) => Left(new Error(s"Cannot parse $input as an URI")),
       (v, _) => {
@@ -155,39 +176,6 @@ object URI {
     )
   }
 }
-
-//  def this(value: String): URI = {
-//    println(s"Parsing: $value")
-//
-//    val result = parse(value, URI.uri(_))
-//    //    val parsed = uri.parse(value)
-//
-//    println(result)
-//    //    pprintln(s"scheme: $scheme")
-//    //    pprintln(s"username: $username")
-//    //    pprintln(s"password: $password")
-//    //    pprintln(s"userinfo: $userinfo")
-//    //    pprintln(s"host: $host")
-//    //    pprintln(s"port: $port")
-//    //    pprintln(s"authority: $authority")
-//    //    pprintln(s"path: $path")
-//    //    pprintln(s"query: $query")
-//    //    pprintln(s"fragment: $fragment")
-//    //    pprintln(s"hierpart: $`hier-part`")
-//    //    pprintln(s"uri: $uri")
-//    //    pprintln(s"pass: $pass")
-//    //    pprintln(s"authUserInfo: $authUserInfo")
-//    //    pprintln(s"auth: $auth")
-//
-//    //    pprintln(parsed)
-////    result.fold[URI](
-////      (_, _, _) => emptyURI,
-////      (one, two) => {
-////        URI(one._1, None, "path", one._2._3.get, None)
-////      }
-////    )
-//    emptyURI
-//  }
 
 /**
   * Uniform resource identifier (URI) reference.

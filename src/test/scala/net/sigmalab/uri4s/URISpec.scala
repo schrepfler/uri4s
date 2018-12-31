@@ -22,16 +22,39 @@ class URISpec extends WordSpec with Matchers {
 
   "apply" should {
     "handle simple URL" in {
-//      def strUri: String = "http://www.example.com"
-
-//      val uri = URI(strUri)
-
       val uri = URI("https://auser:apass@github.com:80/schrepfler/scala-uri?queryKey=queryValue#id")
     }
 
     "handle ftp URI" in {
       val uri = URI("ftp://ftp.is.co.za/rfc/rfc1808.txt")
+    }
 
+    "handle http URI" in {
+      val uri = URI("http://www.ietf.org/rfc/rfc2396.txt")
+    }
+
+    "handle ldap URI" in {
+      val uri = URI("ldap://[2001:db8::7]/c=GB?objectClass?one")
+    }
+
+    "handle mailto URI" in {
+      val uri = URI("mailto:John.Doe@example.com")
+    }
+
+    "handle nttp URI" in {
+      val uri = URI("news:comp.infosystems.www.servers.unix")
+    }
+
+    "handle tel URI" in {
+      val uri = URI("tel:+1-816-555-1212")
+    }
+
+    "handle telnet URI" in {
+      val uri = URI("telnet://192.0.2.16:80/")
+    }
+
+    "handle urn URI" in {
+      val uri = URI("urn:oasis:names:specification:docbook:dtd:xml:4.1.2")
     }
 
   }
