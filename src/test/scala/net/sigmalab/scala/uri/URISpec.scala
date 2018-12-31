@@ -16,8 +16,7 @@
 
 package net.sigmalab.scala.uri
 
-import org.scalatest.{ Matchers, WordSpec }
-import net.sigmalab.scala.uri._
+import org.scalatest.{Matchers, WordSpec}
 
 class URISpec extends WordSpec with Matchers {
 
@@ -39,6 +38,11 @@ class URISpec extends WordSpec with Matchers {
       // println(uri)
 
 //    val uri = URI(Some("http://"), Some(authority), "pages/1", "hideComments=true", None)
+
+    }
+
+    "handle ftp URI" in {
+      val uri = URI("ftp://ftp.is.co.za/rfc/rfc1808.txt")
 
     }
 

@@ -15,8 +15,6 @@
  */
 
 package net.sigmalab.scala.uri
-import fastparse.parse
-import net.sigmalab.scala.uri.URI.emptyURI
 
 object URI {
 
@@ -31,19 +29,20 @@ object URI {
   def mkQueryValue                   = ???
   def mkFragment                     = ???
 
-  def scheme[_: P]: P[Option[String]] = P(CharsWhile(_ != ':').!).?.log
+  def scheme[_: P]: P[String] = P(CharsWhile(_ != ':').!).log
 
   def username[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
   def password[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
 
-  def userinfo[_: P]: P[String] = P(username ~ password).!.log
+  def userinfo[_: P]: P[(String, String)] = P(username.! ~ ":" ~ password.!).log
 
   def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
   def port[_: P]: P[String] = P(CharsWhile(_ != '/')).!.log
 
-  def authority[_: P]: P[Option[(Option[String], String, Option[String])]] = P((userinfo.? ~ "@") ~ host ~ (":" ~ port).?).?.log
+  def authority[_: P]: P[Option[(Option[(String, String)], String, Option[String])]] =
+    P((userinfo.? ~ "@") ~ host ~ (":" ~ port).?).?.log
 
   def ALPHA[_: P] = P(CharIn("a-zA-Z").rep).log
 
@@ -61,7 +60,8 @@ object URI {
   def `path-abempty`[_: P] = P("/" ~ CharIn("a-zA-Z").rep.?).rep.log
 
   //      "/" [ segment-nz *( "/" segment ) ]
-  def `path-absolute`[_: P] = P("/" ~ (CharIn("a-zA-Z").rep(1).? ~ ("/" ~ CharIn("a-zA-Z")).rep)).log
+  def `path-absolute`[_: P] =
+    P("/" ~ (CharIn("a-zA-Z").rep(1).? ~ ("/" ~ CharIn("a-zA-Z")).rep)).log
 
   //      segment-nz-nc *( "/" segment )
   def `path-noscheme`[_: P] = P("").log
@@ -80,31 +80,40 @@ object URI {
 
   def fragment[_: P]: P[String] = P(AnyChar.rep).!.log
 
-  def `hier-part`[_: P]: P[Any] = P(("//" ~ authority ~ `path-abempty`) | `path-absolute` | `path-rootless` | `path-empty`).log
+  def `hier-part`[_: P]: P[Any] =
+    P(
+      ("//" ~ authority ~ `path-abempty`) |
+      `path-absolute` |
+      `path-rootless` |
+      `path-empty`
+    ).log
 
-  def uri[_: P]: P[(Option[String], Any, Option[String], Option[String])] = P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).? ~ ("#" ~ fragment).?).log
+  def URI[_: P]: P[(String, Any, Option[String], Option[String])] =
+    P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).? ~ ("#" ~ fragment).?).log
 
   def pass[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
 
   def authUserInfo[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
 
-  def `relative-part`[_: P]: P[Any] = P(("//" ~ authority ~ `path-abempty`) | `path-absolute` | `path-rootless` | `path-empty`).log
+  def `relative-part`[_: P]: P[Either[Option[(Option[(String, String)], String, Option[String])], String]] =
+    P(("//" ~ authority ~ `path-abempty`).map(Left.apply) | path.map(Right.apply))
 
   def `relative-ref`[_: P] = P(`relative-part` ~ query.?)
 
-  def `absolute-URI`[_: P]: P[(Option[String], Any, Option[String])] = P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).?).log
+  def `absolute-URI`[_: P]: P[(String, Any, Option[String])] =
+    P(scheme ~ ":" ~ `hier-part` ~ ("?" ~ query).?).log
 
-  val emptyURI = URI(None, None, "", "", None)
+//  val emptyURI = URI(None, None, None, None)
 
   def apply(input: String): Either[Error, URI] = {
     println(s"Parsing: $input")
-    val result = parse(input, URI.uri(_))
+    val result = parse(input, URI(_))
 //    println(result)
     result.fold(
       (_, _, _) => Left(new Error(s"Cannot parse $input as an URI")),
       (v, _) => {
         println(s"Parsed: $v")
-        Right(new URI(v._1, None, "", "", None))
+        Right(new URI(v._1, None, "", v._3,  v._4))
       }
     )
   }
@@ -146,13 +155,13 @@ object URI {
 /**
   * Uniform resource identifier (URI) reference.
   */
-case class URI(uriScheme: Option[String],
-               uriAuthority: Option[Authority],
-               uriPath: String,
-               uriQuery: String,
-               uriFragment: Option[String])
+case class URI(scheme: String,
+               authority: Option[Authority],
+               path: String,
+               query: Option[String],
+               fragment: Option[String])
 
-case class Authority(authUserInfo: Option[UserInfo], authHost: String, authPort: Option[String])
+case class Authority(userinfo: Option[UserInfo], host: String, port: Option[String])
 
 case class Password(password: String)
 
