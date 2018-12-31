@@ -27,18 +27,6 @@ class URISpec extends WordSpec with Matchers {
 //      val uri = URI(strUri)
 
       val uri = URI("https://auser:apass@github.com:80/schrepfler/scala-uri?queryKey=queryValue#id")
-
-//    val password = Password("password")
-//
-//    val authUserInfo = UserInfo("srdan", Some(password))
-//
-//    val authority = Authority(Some(authUserInfo), "blog.sigmalab.net", None)
-      println("------")
-      println(uri)
-      // println(uri)
-
-//    val uri = URI(Some("http://"), Some(authority), "pages/1", "hideComments=true", None)
-
     }
 
     "handle ftp URI" in {

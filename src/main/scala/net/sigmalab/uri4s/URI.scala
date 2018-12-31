@@ -37,16 +37,50 @@ object URI {
 
   def userinfo[_: P]: P[(String, String)] = P(username.! ~ ":" ~ password.!).log
 
-  def host[_: P]: P[String] = P(CharsWhile(_ != ':')).!.log
+  def host[_: P]: P[String] = P(`IP-literal` | `IPv4address` | `reg-name`).!.log
+
+  def `IP-literal`[_: P]: P[String] = P("[" ~ (IPv6address | IPvFuture) ~ "]")
+
+  def IPv4address[_: P]: P[String] =
+    P(`dec-octet` ~ "." ~ `dec-octet` ~ "." ~ `dec-octet` ~ "." ~ `dec-octet`).!.log
+
+  def IPvFuture[_: P]: P[String] =
+    P(
+      "v" ~ HEXDIG ~ "." ~ (unreserved | `sub-delims` | ":")
+    ).!.log
+
+  def HEXDIG[_: P] = P(CharIn("0-9a-fA-F"))
+
+  def `dec-octet`[_: P]: P[String] =
+    P(
+      DIGIT |
+      ONE_TO_NINE ~ DIGIT |
+      "1" ~ DIGIT ~ DIGIT |
+      "2" ~ ZERO_TO_FOUR ~ DIGIT |
+      "25" ~ ZERO_TO_FIVE
+    ).!.log
+
+  def IPv6address[_: P]: P[String] = P("X").! // TODO
+
+  def `reg-name`[_: P]: P[String] =
+    P(
+      unreserved | `pct-encoded` | `sub-delims`
+    ).rep.!.log
 
   def port[_: P]: P[String] = P(CharsWhile(_ != '/')).!.log
 
   def authority[_: P]: P[Option[(Option[(String, String)], String, Option[String])]] =
-    P((userinfo.? ~ "@") ~ host ~ (":" ~ port).?).?.log
+    P((userinfo ~ "@").? ~ host ~ (":" ~ port).?).?.log
 
-  def ALPHA[_: P] = P(CharIn("a-zA-Z").rep).log
+  def ALPHA[_: P] = P(CharIn("a-zA-Z")).log
 
-  def DIGIT[_: P] = P(CharIn("0-9").rep).log
+  def DIGIT[_: P] = P(CharIn("0-9")).log
+
+  def ONE_TO_NINE[_: P] = P(CharIn("1-9")).log
+
+  def ZERO_TO_FOUR[_: P] = P(CharIn("0-4")).log
+
+  def ZERO_TO_FIVE[_: P] = P(CharIn("0-5")).log
 
   def unreserved[_: P] = P(ALPHA | DIGIT | "-" | "." | "_" | "~").log
 
@@ -56,8 +90,10 @@ object URI {
 
   def `sub-delims`[_: P] = P("!" | "$" | "&" | "'" | "(" | ")" | "*" | "+" | "," | ";" | "=").log
 
+  def `pct-encoded`[_: P] = P("%" ~ HEXDIG ~ HEXDIG)
+
   //      *( "/" segment )
-  def `path-abempty`[_: P] = P("/" ~ CharIn("a-zA-Z").rep.?).rep.log
+  def `path-abempty`[_: P] = P("/" ~ CharIn("a-zA-Z")).rep.?.log
 
   //      "/" [ segment-nz *( "/" segment ) ]
   def `path-absolute`[_: P] =
@@ -95,7 +131,8 @@ object URI {
 
   def authUserInfo[_: P]: P[String] = P(CharsWhile(_ != '@')).!.log
 
-  def `relative-part`[_: P]: P[Either[Option[(Option[(String, String)], String, Option[String])], String]] =
+  def `relative-part`[_: P]
+    : P[Either[Option[(Option[(String, String)], String, Option[String])], String]] =
     P(("//" ~ authority ~ `path-abempty`).map(Left.apply) | path.map(Right.apply))
 
   def `relative-ref`[_: P] = P(`relative-part` ~ query.?)
@@ -113,7 +150,7 @@ object URI {
       (_, _, _) => Left(new Error(s"Cannot parse $input as an URI")),
       (v, _) => {
         println(s"Parsed: $v")
-        Right(new URI(v._1, None, "", v._3,  v._4))
+        Right(new URI(v._1, None, "", v._3, v._4))
       }
     )
   }
