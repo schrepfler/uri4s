@@ -1,4 +1,4 @@
-# scala-uri #
+# uri4s #
 
 Welcome to uri4s! This library aims to implement an rfc3986 compliant parser with a similar approach to moder-uri and scala-uri.
 
