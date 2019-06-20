@@ -1,5 +1,5 @@
 addSbtPlugin("com.dwijnand"      % "sbt-travisci"    % "1.2.0")
-addSbtPlugin("com.lucidchart"    % "sbt-scalafmt"    % "1.15")
+addSbtPlugin("com.lucidchart"    % "sbt-scalafmt"    % "1.16")
 addSbtPlugin("com.typesafe.sbt"  % "sbt-git"         % "1.0.0")
 addSbtPlugin("de.heikoseeberger" % "sbt-header"      % "5.2.0")
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
