@@ -16,7 +16,7 @@
 
 package net.sigmalab.uri4s
 
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.{ Matchers, WordSpec }
 
 class URISpec extends WordSpec with Matchers {
 
