@@ -16,9 +16,10 @@
 
 package net.sigmalab.uri4s
 
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class URISpec extends WordSpec with Matchers {
+class URISpec extends AnyWordSpec with Matchers {
 
   "apply" should {
     "handle simple URL" in {

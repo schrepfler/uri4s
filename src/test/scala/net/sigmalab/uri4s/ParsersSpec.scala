@@ -17,9 +17,10 @@
 package net.sigmalab.uri4s
 
 import fastparse._
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
-class ParsersSpec extends WordSpec with Matchers {
+class ParsersSpec extends AnyWordSpec with Matchers {
 
   "scheme parser" should {
 
