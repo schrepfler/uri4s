@@ -22,7 +22,7 @@ lazy val `uri4s` =
 lazy val library =
   new {
     object Version {
-      val scalaCheck = "1.14.2"
+      val scalaCheck = "1.14.3"
       val scalaTest  = "3.1.0"
       val fastParse  = "2.1.3"
     }
