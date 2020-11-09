@@ -23,7 +23,7 @@ lazy val library =
   new {
     object Version {
       val scalaCheck = "1.15.1"
-      val scalaTest  = "3.2.2"
+      val scalaTest  = "3.2.3"
       val fastParse  = "2.3.0"
     }
     val fastParse  = "com.lihaoyi" %% "fastparse" % Version.fastParse
