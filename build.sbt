@@ -23,7 +23,7 @@ lazy val library =
   new {
     object Version {
       val scalaCheck = "1.16.0"
-      val scalaTest  = "3.2.13"
+      val scalaTest  = "3.2.14"
       val fastParse  = "2.3.3"
     }
     val fastParse  = "com.lihaoyi" %% "fastparse" % Version.fastParse
@@ -43,7 +43,7 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     // scalaVersion from .travis.yml via sbt-travisci
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.10",
     organization := "Sigmalab",
     organizationName := "Srdan Srepfler",
     startYear := Some(2017),
