@@ -5,4 +5,4 @@ addSbtPlugin("de.heikoseeberger" % "sbt-header"      % "5.10.0")
 addSbtPlugin("com.github.sbt" % "sbt-eclipse" % "6.2.0")
 addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.6.4")
 
-libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.11" // Needed by sbt-git
+libraryDependencies += "org.slf4j" % "slf4j-nop" % "2.0.12" // Needed by sbt-git
