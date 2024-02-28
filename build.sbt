@@ -43,7 +43,7 @@ lazy val settings =
 lazy val commonSettings =
   Seq(
     // scalaVersion from .travis.yml via sbt-travisci
-    scalaVersion := "2.13.12",
+    scalaVersion := "2.13.13",
     organization := "Sigmalab",
     organizationName := "Srdan Srepfler",
     startYear := Some(2017),
